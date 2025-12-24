@@ -1,3 +1,7 @@
+import { eq } from 'drizzle-orm'
+
+import db, { users } from '../../utils/db'
+
 export default defineEventHandler(async (event) => {
   const userId = await getUserId(event)
   
@@ -8,15 +12,18 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      createdAt: true,
-    },
-  })
+  const user = (
+    await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+  )[0]
 
   if (!user) {
     await clearSession(event)

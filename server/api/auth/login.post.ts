@@ -1,3 +1,7 @@
+import { eq } from 'drizzle-orm'
+
+import db, { users } from '../../utils/db'
+
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ token: string }>(event)
   
@@ -9,9 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Find user by token
-  const user = await prisma.user.findUnique({
-    where: { loginToken: body.token },
-  })
+  const user = (await db.select().from(users).where(eq(users.loginToken, body.token)).limit(1))[0]
 
   if (!user) {
     throw createError({
@@ -32,13 +34,14 @@ export default defineEventHandler(async (event) => {
   await setUserId(event, user.id)
 
   // Clear the login token (single use)
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
+  await db
+    .update(users)
+    .set({
       loginToken: null,
       loginTokenExpiresAt: null,
-    },
-  })
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id))
 
   return {
     success: true,

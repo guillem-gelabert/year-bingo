@@ -50,10 +50,11 @@ Thank you for your interest in contributing! This document provides guidelines a
 
 When modifying the database schema:
 
-1. Update `prisma/schema.prisma`
-2. Create a migration:
+1. Update `server/db/schema.ts`
+2. Create + apply migrations:
    ```bash
-   npm run prisma:migrate
+   npm run db:generate
+   npm run db:migrate
    ```
 3. Include migration files in your PR
 

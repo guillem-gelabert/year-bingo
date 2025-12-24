@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 import 'dotenv/config'
-import { PrismaClient } from '@prisma/client'
 import { randomBytes } from 'crypto'
+import { eq } from 'drizzle-orm'
 
-const prisma = new PrismaClient()
+import db, { users } from '../server/utils/db'
 
 interface Args {
   name?: string
@@ -54,20 +54,55 @@ async function main() {
   const loginTokenExpiresAt = getTokenExpiration(expirationDays)
 
   // Create or update user
-  const user = await prisma.user.upsert({
-    where: args.email ? { email: args.email } : { id: 'temp-id-will-not-match' },
-    update: {
-      name: args.name,
-      loginToken,
-      loginTokenExpiresAt,
-    },
-    create: {
-      name: args.name,
-      email: args.email || null,
-      loginToken,
-      loginTokenExpiresAt,
-    },
-  })
+  let user:
+    | {
+        id: string
+        name: string
+        email: string | null
+      }
+    | undefined
+
+  if (args.email) {
+    const existing = (await db.select().from(users).where(eq(users.email, args.email)).limit(1))[0]
+    if (existing) {
+      user = (
+        await db
+          .update(users)
+          .set({
+            name: args.name,
+            loginToken,
+            loginTokenExpiresAt,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, existing.id))
+          .returning({ id: users.id, name: users.name, email: users.email })
+      )[0]
+    } else {
+      user = (
+        await db
+          .insert(users)
+          .values({
+            name: args.name,
+            email: args.email,
+            loginToken,
+            loginTokenExpiresAt,
+          })
+          .returning({ id: users.id, name: users.name, email: users.email })
+      )[0]
+    }
+  } else {
+    user = (
+      await db
+        .insert(users)
+        .values({
+          name: args.name,
+          email: null,
+          loginToken,
+          loginTokenExpiresAt,
+        })
+        .returning({ id: users.id, name: users.name, email: users.email })
+    )[0]
+  }
 
   const appUrl = process.env.APP_URL || 'http://localhost:3000'
   const loginUrl = `${appUrl}/login?token=${loginToken}`
@@ -85,7 +120,4 @@ main()
   .catch((error) => {
     console.error('Error generating login link:', error)
     process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
   })

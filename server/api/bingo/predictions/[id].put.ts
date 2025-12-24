@@ -1,3 +1,7 @@
+import { eq } from 'drizzle-orm'
+
+import db, { bingoCards, predictions } from '../../../utils/db'
+
 export default defineEventHandler(async (event) => {
   const userId = await getUserId(event)
   
@@ -42,12 +46,22 @@ export default defineEventHandler(async (event) => {
   }
 
   // Find the prediction and verify ownership
-  const prediction = await prisma.prediction.findUnique({
-    where: { id: predictionId },
-    include: {
-      bingoCard: true,
-    },
-  })
+  const prediction = (
+    await db
+      .select({
+        id: predictions.id,
+        bingoCardId: predictions.bingoCardId,
+        description: predictions.description,
+        position: predictions.position,
+        createdAt: predictions.createdAt,
+        updatedAt: predictions.updatedAt,
+        ownerUserId: bingoCards.userId,
+      })
+      .from(predictions)
+      .innerJoin(bingoCards, eq(predictions.bingoCardId, bingoCards.id))
+      .where(eq(predictions.id, predictionId))
+      .limit(1)
+  )[0]
 
   if (!prediction) {
     throw createError({
@@ -56,7 +70,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (prediction.bingoCard.userId !== userId) {
+  if (prediction.ownerUserId !== userId) {
     throw createError({
       statusCode: 403,
       message: 'You do not have permission to edit this prediction',
@@ -64,10 +78,13 @@ export default defineEventHandler(async (event) => {
   }
 
   // Update the prediction
-  const updatedPrediction = await prisma.prediction.update({
-    where: { id: predictionId },
-    data: { description: body.description },
-  })
+  const updatedPrediction = (
+    await db
+      .update(predictions)
+      .set({ description: body.description, updatedAt: new Date() })
+      .where(eq(predictions.id, predictionId))
+      .returning()
+  )[0]
 
   return updatedPrediction
 })
