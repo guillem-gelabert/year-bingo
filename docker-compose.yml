@@ -19,5 +19,24 @@ services:
       timeout: 5s
       retries: 5
 
+  web:
+    build:
+      context: .
+    container_name: year-bingo-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Use the docker-compose service name as host
+      DATABASE_URL: postgresql://yearbingo:yearbingo_dev_password@postgres:5432/yearbingo?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-to-a-secure-random-string-in-production}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      TZ: ${TZ:-UTC}
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: 3000
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data:

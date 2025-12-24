@@ -85,6 +85,20 @@ npm run dev
 
 The application will be available at http://localhost:3000
 
+## Run the app with Docker (frontend + backend)
+
+This runs the Nuxt app (UI + API) and PostgreSQL via Docker Compose:
+
+```bash
+docker compose up --build -d
+```
+
+Then initialize the database schema (first run):
+
+```bash
+docker compose exec web npm run db:push
+```
+
 ## Usage
 
 ### Generating Login Links

@@ -46,6 +46,13 @@ npm run db:migrate
 npm run dev
 ```
 
+## Docker (run Nuxt app + DB)
+
+```bash
+docker compose up --build -d
+docker compose exec web npm run db:push
+```
+
 Visit http://localhost:3000
 
 ## 6. Create Your First User
