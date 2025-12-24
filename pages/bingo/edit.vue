@@ -1,0 +1,191 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 py-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-4xl font-bold text-indigo-900 mb-2">My Year Bingo</h1>
+          <p v-if="user" class="text-gray-600">Welcome, {{ user.name }}!</p>
+        </div>
+        <button 
+          @click="handleLogout"
+          class="px-4 py-2 text-gray-600 hover:text-gray-900 font-semibold"
+        >
+          Logout
+        </button>
+      </div>
+
+      <!-- Deadline info -->
+      <div v-if="deadline" class="bg-white rounded-lg shadow p-4 mb-6">
+        <div v-if="canEdit && timeRemaining" class="text-center">
+          <p class="text-sm text-gray-600 mb-1">Time remaining to edit:</p>
+          <p class="text-2xl font-bold text-indigo-600">
+            {{ timeRemaining.days }}d {{ timeRemaining.hours }}h {{ timeRemaining.minutes }}m
+          </p>
+        </div>
+        <div v-else class="text-center">
+          <p class="text-lg font-semibold text-gray-700">
+            🔒 Editing closed - deadline has passed
+          </p>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div v-if="loading" class="text-center py-12">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
+        <p class="mt-4 text-gray-600">Loading your bingo card...</p>
+      </div>
+
+      <!-- Bingo Grid -->
+      <div v-else-if="bingoCard" class="bg-white rounded-lg shadow-xl p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div 
+            v-for="prediction in sortedPredictions" 
+            :key="prediction.id"
+            class="relative"
+          >
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Prediction {{ prediction.position }}
+            </label>
+            <textarea
+              v-model="localPredictions[prediction.id]"
+              @input="handleInput(prediction.id)"
+              :disabled="!bingoCard.canEdit"
+              :class="[
+                'w-full h-32 p-3 border-2 rounded-lg resize-none transition',
+                bingoCard.canEdit 
+                  ? 'border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200' 
+                  : 'border-gray-200 bg-gray-50 cursor-not-allowed',
+                saveError[prediction.id] ? 'border-red-500' : ''
+              ]"
+              placeholder="Enter your prediction..."
+              maxlength="500"
+            />
+            
+            <!-- Save status indicator -->
+            <div class="absolute top-0 right-0 mt-1 mr-1">
+              <span 
+                v-if="saving[prediction.id]" 
+                class="text-xs text-gray-500"
+              >
+                💾 Saving...
+              </span>
+              <span 
+                v-else-if="saveError[prediction.id]" 
+                class="text-xs text-red-500"
+                :title="saveError[prediction.id]"
+              >
+                ❌ Error
+              </span>
+              <span 
+                v-else-if="localPredictions[prediction.id] !== undefined" 
+                class="text-xs text-green-500"
+              >
+                ✓ Saved
+              </span>
+            </div>
+
+            <!-- Character count -->
+            <div class="text-xs text-gray-500 mt-1 text-right">
+              {{ (localPredictions[prediction.id] || prediction.description).length }} / 500
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+          <p class="text-sm text-gray-600 mb-4">
+            Your predictions are automatically saved as you type.
+          </p>
+          <NuxtLink 
+            to="/" 
+            class="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition"
+          >
+            Back to Home
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div v-else class="bg-white rounded-lg shadow-xl p-8 text-center">
+        <p class="text-red-600 mb-4">Failed to load bingo card. Please try refreshing the page.</p>
+        <button 
+          @click="loadData"
+          class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+
+// Protect this route - redirect to login if not authenticated
+definePageMeta({
+  middleware: ['auth']
+})
+
+const { user, logout, fetchUser } = useAuth()
+const { bingoCard, loading, saving, saveError, fetchMyBingoCard, updatePrediction } = useBingoCard()
+const { deadline, canEdit, timeRemaining, fetchDeadline } = useDeadline()
+
+// Local state for input values
+const localPredictions = ref<Record<string, string>>({})
+
+// Debounce timers for auto-save
+const debounceTimers = ref<Record<string, ReturnType<typeof setTimeout>>>({})
+
+const sortedPredictions = computed(() => {
+  if (!bingoCard.value) return []
+  return [...bingoCard.value.predictions].sort((a, b) => a.position - b.position)
+})
+
+const handleInput = (predictionId: string) => {
+  // Clear existing timer
+  if (debounceTimers.value[predictionId]) {
+    clearTimeout(debounceTimers.value[predictionId])
+  }
+
+  // Set new timer for auto-save (500ms debounce)
+  debounceTimers.value[predictionId] = setTimeout(async () => {
+    const newDescription = localPredictions.value[predictionId]
+    if (newDescription !== undefined) {
+      try {
+        await updatePrediction(predictionId, newDescription)
+      } catch (error) {
+        console.error('Failed to save prediction:', error)
+      }
+    }
+  }, 500)
+}
+
+const handleLogout = async () => {
+  await logout()
+}
+
+const loadData = async () => {
+  await Promise.all([
+    fetchUser(),
+    fetchMyBingoCard(),
+    fetchDeadline(),
+  ])
+  
+  // Initialize local predictions
+  if (bingoCard.value) {
+    bingoCard.value.predictions.forEach(p => {
+      localPredictions.value[p.id] = p.description
+    })
+  }
+}
+
+onMounted(async () => {
+  await loadData()
+})
+
+// Cleanup timers on unmount
+onUnmounted(() => {
+  Object.values(debounceTimers.value).forEach(timer => clearTimeout(timer))
+})
+</script>

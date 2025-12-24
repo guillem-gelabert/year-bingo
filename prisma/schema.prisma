@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  String     @id @default(uuid())
+  name                String
+  email               String?    @unique
+  loginToken          String?    @unique
+  loginTokenExpiresAt DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  bingoCard           BingoCard?
+}
+
+model BingoCard {
+  id          String       @id @default(uuid())
+  userId      String       @unique
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  predictions Prediction[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Prediction {
+  id          String    @id @default(uuid())
+  bingoCardId String
+  bingoCard   BingoCard @relation(fields: [bingoCardId], references: [id], onDelete: Cascade)
+  description String
+  position    Int       // 1-9 for 3x3 grid
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([bingoCardId, position])
+}
