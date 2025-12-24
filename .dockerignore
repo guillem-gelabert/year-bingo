@@ -8,3 +8,6 @@ dist
 .git
 .gitignore
 README.md
+e2e
+playwright-report
+test-results

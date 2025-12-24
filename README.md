@@ -132,19 +132,18 @@ The script will output a login URL that you can share with the user.
 year-bingo/
 ├── app/
 │   └── app.vue              # Main app component
-├── components/              # Reusable Vue components (if any)
-├── composables/             # Vue composables
-│   ├── useAuth.ts          # Authentication logic
-│   ├── useBingoCard.ts     # Bingo card management
-│   └── useDeadline.ts      # Deadline calculations
-├── middleware/              # Route middleware
-│   └── auth.ts             # Client-side auth guard
-├── pages/                   # Application pages
-│   ├── index.vue           # Home page
-│   ├── login.vue           # Login page
-│   └── bingo/
-│       ├── edit.vue        # Edit bingo card (protected)
-│       └── index.vue       # View all cards (public after deadline)
+│   ├── composables/         # Vue composables
+│   │   ├── useAuth.ts       # Authentication logic
+│   │   ├── useBingoCard.ts  # Bingo card management
+│   │   └── useDeadline.ts   # Deadline calculations
+│   ├── middleware/          # Route middleware
+│   │   └── auth.ts          # Client-side auth guard
+│   └── pages/               # Application pages
+│       ├── index.vue        # Home page
+│       ├── login.vue        # Login page
+│       └── bingo/
+│           ├── edit.vue     # Edit bingo card (protected)
+│           └── index.vue    # View all cards (public after deadline)
 ├── drizzle.config.ts        # Drizzle Kit configuration
 ├── scripts/
 │   └── generate-login-link.ts  # CLI script for login links

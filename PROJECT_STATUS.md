@@ -165,9 +165,7 @@ year-bingo/
 │   ├── api/         # API route handlers
 │   ├── middleware/  # Server middleware
 │   └── utils/       # Server utilities
-├── pages/           # Vue pages (routes)
-├── composables/     # Vue composables
-├── middleware/      # Client middleware
+├── app/             # Nuxt app source (pages/middleware/composables)
 ├── drizzle/         # Drizzle migrations output (if generated)
 ├── scripts/         # CLI scripts
 ├── public/          # Static assets
