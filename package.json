@@ -8,23 +8,28 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio",
-    "prisma:deploy": "prisma migrate deploy",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install --with-deps",
     "generate-login-link": "tsx scripts/generate-login-link.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.2.0",
     "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
     "h3-session": "^0.2.5",
     "nuxt": "^4.2.2",
-    "prisma": "^7.2.0",
+    "pg": "^8.16.3",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
+    "@playwright/test": "^1.57.0",
+    "drizzle-kit": "^0.31.8",
     "tsx": "^4.19.2"
   }
 }

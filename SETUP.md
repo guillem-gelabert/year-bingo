@@ -30,15 +30,27 @@ docker compose up -d
 ## 4. Run Database Migrations
 
 ```bash
-npm run prisma:migrate
+npm run db:push
 ```
 
-When prompted for a migration name, you can use: `init`
+If you prefer migrations (recommended for production), use:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
 
 ## 5. Start Development Server
 
 ```bash
 npm run dev
+```
+
+## Docker (run Nuxt app + DB)
+
+```bash
+docker compose up --build -d
+docker compose exec web npm run db:push
 ```
 
 Visit http://localhost:3000
@@ -76,5 +88,5 @@ Either:
 Reset the database (⚠️ deletes all data):
 
 ```bash
-npx prisma migrate reset
+npx drizzle-kit drop
 ```

@@ -4,8 +4,8 @@ A web application where users create bingo cards with 9 predictions for the upco
 
 ## Tech Stack
 
-- **Frontend/Backend**: Nuxt 3
-- **Database ORM**: Prisma
+- **Frontend/Backend**: Nuxt 4
+- **Database ORM**: Drizzle ORM
 - **Database**: PostgreSQL
 - **Infrastructure**: Docker Compose
 - **Styling**: Tailwind CSS
@@ -64,16 +64,17 @@ docker compose ps
 
 ### 4. Set Up Database
 
-Run Prisma migrations to create the database schema:
+Push the schema to the database (development convenience):
 
 ```bash
-npm run prisma:migrate
+npm run db:push
 ```
 
-Generate Prisma Client:
+If you prefer migrations (recommended for production), generate + apply migrations instead:
 
 ```bash
-npm run prisma:generate
+npm run db:generate
+npm run db:migrate
 ```
 
 ### 5. Start Development Server
@@ -83,6 +84,20 @@ npm run dev
 ```
 
 The application will be available at http://localhost:3000
+
+## Run the app with Docker (frontend + backend)
+
+This runs the Nuxt app (UI + API) and PostgreSQL via Docker Compose:
+
+```bash
+docker compose up --build -d
+```
+
+Then initialize the database schema (first run):
+
+```bash
+docker compose exec web npm run db:push
+```
 
 ## Usage
 
@@ -117,22 +132,19 @@ The script will output a login URL that you can share with the user.
 year-bingo/
 ├── app/
 │   └── app.vue              # Main app component
-├── components/              # Reusable Vue components (if any)
-├── composables/             # Vue composables
-│   ├── useAuth.ts          # Authentication logic
-│   ├── useBingoCard.ts     # Bingo card management
-│   └── useDeadline.ts      # Deadline calculations
-├── middleware/              # Route middleware
-│   └── auth.ts             # Client-side auth guard
-├── pages/                   # Application pages
-│   ├── index.vue           # Home page
-│   ├── login.vue           # Login page
-│   └── bingo/
-│       ├── edit.vue        # Edit bingo card (protected)
-│       └── index.vue       # View all cards (public after deadline)
-├── prisma/
-│   ├── schema.prisma       # Database schema
-│   └── migrations/         # Database migrations
+│   ├── composables/         # Vue composables
+│   │   ├── useAuth.ts       # Authentication logic
+│   │   ├── useBingoCard.ts  # Bingo card management
+│   │   └── useDeadline.ts   # Deadline calculations
+│   ├── middleware/          # Route middleware
+│   │   └── auth.ts          # Client-side auth guard
+│   └── pages/               # Application pages
+│       ├── index.vue        # Home page
+│       ├── login.vue        # Login page
+│       └── bingo/
+│           ├── edit.vue     # Edit bingo card (protected)
+│           └── index.vue    # View all cards (public after deadline)
+├── drizzle.config.ts        # Drizzle Kit configuration
 ├── scripts/
 │   └── generate-login-link.ts  # CLI script for login links
 ├── server/
@@ -144,7 +156,7 @@ year-bingo/
 │   └── utils/              # Server utilities
 │       ├── auth.ts        # Auth helpers
 │       ├── deadline.ts    # Deadline helpers
-│       └── prisma.ts      # Prisma client
+│       └── db.ts          # Drizzle connection
 ├── docker-compose.yml      # PostgreSQL container
 ├── .env                    # Environment variables (not in git)
 ├── .env.example           # Example environment file
@@ -157,27 +169,28 @@ year-bingo/
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run generate-login-link` - Generate login link for a user
-- `npm run prisma:generate` - Generate Prisma Client
-- `npm run prisma:migrate` - Run database migrations
-- `npm run prisma:studio` - Open Prisma Studio (database GUI)
-- `npm run prisma:deploy` - Deploy migrations (production)
+- `npm run db:push` - Push schema to DB (dev convenience)
+- `npm run db:generate` - Generate migrations
+- `npm run db:migrate` - Apply migrations
+- `npm run db:studio` - Open Drizzle Studio (database GUI)
 
 ## Database Management
 
-### View Database with Prisma Studio
+### View Database with Drizzle Studio
 
 ```bash
-npm run prisma:studio
+npm run db:studio
 ```
 
 This opens a GUI at http://localhost:5555 where you can view and edit data.
 
 ### Create New Migration
 
-After modifying `prisma/schema.prisma`:
+After modifying `server/db/schema.ts`:
 
 ```bash
-npm run prisma:migrate
+npm run db:generate
+npm run db:migrate
 ```
 
 ### Reset Database (Development)
@@ -185,7 +198,7 @@ npm run prisma:migrate
 **Warning: This deletes all data!**
 
 ```bash
-npx prisma migrate reset
+npx drizzle-kit drop
 ```
 
 ## API Endpoints
@@ -234,11 +247,8 @@ Ensure these are set in production:
 # Install dependencies
 npm ci
 
-# Generate Prisma Client
-npm run prisma:generate
-
 # Run migrations
-npm run prisma:deploy
+npm run db:migrate
 
 # Build application
 npm run build
@@ -258,22 +268,18 @@ If you can't connect to PostgreSQL:
 3. Verify DATABASE_URL in `.env`
 4. Try restarting containers: `docker compose restart`
 
-### Prisma Issues
+### Drizzle Issues
 
-If Prisma Client is out of sync:
+If your schema and database drift:
 
 ```bash
-npm run prisma:generate
+npm run db:push
 ```
 
-If migrations fail:
+If you want to validate migrations:
 
 ```bash
-# Check migration status
-npx prisma migrate status
-
-# View migration history
-npx prisma migrate history
+npx drizzle-kit check
 ```
 
 ### Session Issues

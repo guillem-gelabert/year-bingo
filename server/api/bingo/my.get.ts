@@ -1,3 +1,7 @@
+import { asc, eq } from 'drizzle-orm'
+
+import db, { bingoCards, predictions } from '../../utils/db'
+
 export default defineEventHandler(async (event) => {
   const userId = await getUserId(event)
   
@@ -9,37 +13,32 @@ export default defineEventHandler(async (event) => {
   }
 
   // Find or create bingo card for user
-  let bingoCard = await prisma.bingoCard.findUnique({
-    where: { userId },
-    include: {
-      predictions: {
-        orderBy: { position: 'asc' },
-      },
-    },
-  })
+  let bingoCard = (await db.select().from(bingoCards).where(eq(bingoCards.userId, userId)).limit(1))[0]
 
   // If no bingo card exists, create one with 9 empty predictions
   if (!bingoCard) {
-    bingoCard = await prisma.bingoCard.create({
-      data: {
-        userId,
-        predictions: {
-          create: Array.from({ length: 9 }, (_, i) => ({
-            position: i + 1,
-            description: '',
-          })),
-        },
-      },
-      include: {
-        predictions: {
-          orderBy: { position: 'asc' },
-        },
-      },
+    bingoCard = await db.transaction(async (tx) => {
+      const card = (await tx.insert(bingoCards).values({ userId }).returning())[0]
+      await tx.insert(predictions).values(
+        Array.from({ length: 9 }, (_, i) => ({
+          bingoCardId: card.id,
+          position: i + 1,
+          description: '',
+        })),
+      )
+      return card
     })
   }
 
+  const bingoCardPredictions = await db
+    .select()
+    .from(predictions)
+    .where(eq(predictions.bingoCardId, bingoCard.id))
+    .orderBy(asc(predictions.position))
+
   return {
     ...bingoCard,
+    predictions: bingoCardPredictions,
     canEdit: canEdit(),
   }
 })

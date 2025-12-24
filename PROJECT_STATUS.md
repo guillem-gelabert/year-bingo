@@ -7,7 +7,7 @@ The Year Bingo application has been fully implemented according to the requireme
 ## What's Been Built
 
 ### 🗄️ Database & Infrastructure
-- ✅ Prisma schema with User, BingoCard, and Prediction models
+- ✅ Drizzle schema with User, BingoCard, and Prediction tables
 - ✅ Docker Compose configuration for PostgreSQL
 - ✅ Environment variable configuration
 - ✅ Database migrations setup
@@ -47,15 +47,15 @@ The Year Bingo application has been fully implemented according to the requireme
 - ✅ `useAuth` - Authentication state and actions
 - ✅ `useBingoCard` - Bingo card CRUD operations
 - ✅ `useDeadline` - Deadline calculations and status
-- ✅ Prisma client singleton
+- ✅ Drizzle connection singleton
 - ✅ Authentication helpers
 - ✅ Deadline calculation helpers
 
 ### 📦 Scripts & Configuration
 - ✅ `generate-login-link` script
-- ✅ Prisma migration scripts
+- ✅ Drizzle migration scripts
 - ✅ Tailwind CSS configuration
-- ✅ Nuxt 3 configuration
+- ✅ Nuxt 4 configuration
 - ✅ TypeScript configuration
 
 ### 📚 Documentation
@@ -88,13 +88,13 @@ The Year Bingo application has been fully implemented according to the requireme
 ### Performance
 - Auto-save with debouncing (reduces API calls)
 - Optimistic UI updates
-- Efficient database queries with Prisma
+- Efficient database queries with Drizzle ORM
 
 ### Security
 - Cryptographically secure token generation
 - Single-use login tokens
 - Session-based authentication
-- SQL injection prevention via Prisma
+- SQL injection prevention via parameterized queries (Drizzle)
 - Environment-based configuration
 
 ### User Experience
@@ -123,9 +123,9 @@ The Year Bingo application has been fully implemented according to the requireme
    docker compose up -d
    ```
 
-4. **Run migrations:**
+4. **Create database schema:**
    ```bash
-   npm run prisma:migrate
+   npm run db:push
    ```
 
 5. **Start development server:**
@@ -150,8 +150,8 @@ The Year Bingo application has been fully implemented according to the requireme
 
 ## Architecture Highlights
 
-- **Nuxt 3**: Modern Vue framework with SSR support
-- **Prisma 7**: Type-safe database access
+- **Nuxt 4**: Modern Vue framework with SSR support
+- **Drizzle ORM**: Type-safe SQL builder/ORM
 - **PostgreSQL**: Reliable relational database
 - **h3-session**: Lightweight session management
 - **Tailwind CSS**: Utility-first styling
@@ -165,10 +165,8 @@ year-bingo/
 │   ├── api/         # API route handlers
 │   ├── middleware/  # Server middleware
 │   └── utils/       # Server utilities
-├── pages/           # Vue pages (routes)
-├── composables/     # Vue composables
-├── middleware/      # Client middleware
-├── prisma/          # Database schema & migrations
+├── app/             # Nuxt app source (pages/middleware/composables)
+├── drizzle/         # Drizzle migrations output (if generated)
 ├── scripts/         # CLI scripts
 ├── public/          # Static assets
 └── docs/            # Documentation files
@@ -201,10 +199,11 @@ See `CONTRIBUTING.md` for feature ideas:
 
 ## Support & Maintenance
 
-- Database migrations: `npm run prisma:migrate`
-- Database GUI: `npm run prisma:studio`
+- Database schema (dev): `npm run db:push`
+- Database migrations: `npm run db:generate` + `npm run db:migrate`
+- Database GUI: `npm run db:studio`
 - View logs: Check server console
-- Reset database: `npx prisma migrate reset` (⚠️ deletes data)
+- Reset database: `npx drizzle-kit drop` (⚠️ deletes data)
 
 ---
 

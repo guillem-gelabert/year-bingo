@@ -52,7 +52,7 @@ openssl rand -base64 32
 5. Run migrations (one-time):
    ```bash
    # From your local machine with DATABASE_URL pointing to production
-   npm run prisma:deploy
+   npm run db:migrate
    ```
 
 ### Netlify
@@ -84,7 +84,7 @@ openssl rand -base64 32
 5. Run migrations:
    ```bash
    # SSH into Railway or use Railway CLI
-   npm run prisma:deploy
+   npm run db:migrate
    ```
 
 ### DigitalOcean App Platform
@@ -99,7 +99,7 @@ openssl rand -base64 32
      github:
        repo: your-username/year-bingo
        branch: main
-     build_command: npm install && npm run prisma:generate && npm run build
+    build_command: npm install && npm run build
      run_command: node .output/server/index.mjs
      environment_slug: node-js
      envs:
@@ -136,35 +136,7 @@ docker run -d \
   year-bingo
 ```
 
-Create a `Dockerfile`:
-
-```dockerfile
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-COPY prisma ./prisma/
-
-# Install dependencies
-RUN npm ci
-
-# Copy application code
-COPY . .
-
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Build application
-RUN npm run build
-
-# Expose port
-EXPOSE 3000
-
-# Start application
-CMD ["node", ".output/server/index.mjs"]
-```
+This repo includes a production `Dockerfile` already.
 
 ## Database Migrations
 
@@ -177,7 +149,7 @@ After deploying for the first time:
 export DATABASE_URL="postgresql://..."
 
 # Run migrations
-npm run prisma:deploy
+npm run db:migrate
 ```
 
 ### Subsequent Deployments
@@ -188,7 +160,7 @@ When you add new migrations:
 2. Deploy application code
 3. Run migrations:
    ```bash
-   npm run prisma:deploy
+   npm run db:migrate
    ```
 
 ## Health Checks
@@ -259,10 +231,10 @@ Before going live:
 
 ### Database
 
-1. Add indexes for frequently queried fields:
-   ```prisma
-   @@index([userId])
-   @@index([loginToken])
+1. Add indexes for frequently queried fields (example SQL):
+   ```sql
+   CREATE INDEX IF NOT EXISTS "BingoCard_userId_idx" ON "BingoCard" ("userId");
+   CREATE INDEX IF NOT EXISTS "User_loginToken_idx" ON "User" ("loginToken");
    ```
 
 2. Enable connection pooling:
@@ -314,10 +286,7 @@ Verify:
 If you need to rollback:
 
 1. Revert application code deployment
-2. Rollback database migrations:
-   ```bash
-   npx prisma migrate resolve --rolled-back <migration-name>
-   ```
+2. Restore the database from a backup (recommended) or manually revert the migration SQL.
 
 ## Support
 
@@ -325,4 +294,4 @@ For issues:
 1. Check application logs
 2. Verify environment variables
 3. Test database connection
-4. Review Prisma migration status
+4. Review Drizzle migration status
