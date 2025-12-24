@@ -7,11 +7,24 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:deploy": "prisma migrate deploy",
+    "generate-login-link": "tsx scripts/generate-login-link.ts"
   },
   "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "dotenv": "^17.2.3",
+    "h3-session": "^0.2.5",
     "nuxt": "^4.2.2",
+    "prisma": "^7.2.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "tsx": "^4.19.2"
   }
 }
