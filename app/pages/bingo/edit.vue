@@ -3,21 +3,21 @@
     <div class="max-w-4xl mx-auto">
       <!-- Page Title -->
       <div class="mb-8">
-        <h1 class="text-4xl font-bold text-indigo-900 mb-2">My Year Bingo</h1>
-        <p v-if="user" class="text-gray-600">Fill in your 9 predictions for the year!</p>
+        <h1 class="text-4xl font-bold text-indigo-900 mb-2">El meu bingo de l'any</h1>
+        <p v-if="user" class="text-gray-600">Omple les teves 9 prediccions per a l'any!</p>
       </div>
 
       <!-- Deadline info -->
       <div v-if="deadline" class="bg-white rounded-lg shadow p-4 mb-6">
         <div v-if="canEdit && timeRemaining" class="text-center">
-          <p class="text-sm text-gray-600 mb-1">Time remaining to edit:</p>
+          <p class="text-sm text-gray-600 mb-1">Temps restant per editar:</p>
           <p class="text-2xl font-bold text-indigo-600">
             {{ timeRemaining.days }}d {{ timeRemaining.hours }}h {{ timeRemaining.minutes }}m
           </p>
         </div>
         <div v-else class="text-center">
           <p class="text-lg font-semibold text-gray-700">
-            🔒 Editing closed - deadline has passed
+            🔒 Edició tancada — la data límit ha passat
           </p>
         </div>
       </div>
@@ -25,7 +25,7 @@
       <!-- Loading state -->
       <div v-if="loading" class="text-center py-12">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-        <p class="mt-4 text-gray-600">Loading your bingo card...</p>
+        <p class="mt-4 text-gray-600">Carregant el teu bingo...</p>
       </div>
 
       <!-- Bingo Grid -->
@@ -37,7 +37,7 @@
             class="relative"
           >
             <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Prediction {{ prediction.position }}
+              Predicció {{ prediction.position }}
             </label>
             <textarea
               v-model="localPredictions[prediction.id]"
@@ -50,7 +50,7 @@
                   : 'border-gray-200 bg-gray-50 cursor-not-allowed',
                 saveError[prediction.id] ? 'border-red-500' : ''
               ]"
-              placeholder="Enter your prediction..."
+              placeholder="Escriu la teva predicció..."
               maxlength="500"
             />
             
@@ -60,7 +60,7 @@
                 v-if="saving[prediction.id]" 
                 class="text-xs text-gray-500"
               >
-                💾 Saving...
+                💾 Desant...
               </span>
               <span 
                 v-else-if="saveError[prediction.id]" 
@@ -73,7 +73,7 @@
                 v-else-if="localPredictions[prediction.id] !== undefined" 
                 class="text-xs text-green-500"
               >
-                ✓ Saved
+                ✓ Desat
               </span>
             </div>
 
@@ -86,19 +86,19 @@
 
         <div class="mt-6 pt-6 border-t border-gray-200 text-center">
           <p class="text-sm text-gray-600">
-            Your predictions are automatically saved as you type.
+            Les teves prediccions es desen automàticament mentre escrius.
           </p>
         </div>
       </div>
 
       <!-- Error state -->
       <div v-else class="bg-white rounded-lg shadow-xl p-8 text-center">
-        <p class="text-red-600 mb-4">Failed to load bingo card. Please try refreshing the page.</p>
+        <p class="text-red-600 mb-4">No s'ha pogut carregar el bingo. Prova de refrescar la pàgina.</p>
         <button 
           @click="loadData"
           class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
         >
-          Retry
+          Reintenta
         </button>
       </div>
     </div>

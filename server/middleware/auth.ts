@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     '/api/auth/login',
     '/api/auth/generate-login-link', // Uses API key authentication instead
     '/api/deadline',
+    '/api/stats/predictions',
   ]
 
   // Check if it's an API route

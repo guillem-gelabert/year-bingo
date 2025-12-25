@@ -15,13 +15,13 @@
               class="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-lg font-semibold flex items-center gap-1"
             >
               <span>⚙️</span>
-              <span>Admin</span>
+              <span>Administració</span>
             </NuxtLink>
             <NuxtLink
               to="/bingo/edit"
               class="px-3 py-1.5 text-indigo-600 hover:text-indigo-800 font-semibold"
             >
-              My Bingo
+              El meu bingo
             </NuxtLink>
             <span class="text-gray-400">|</span>
             <span class="text-sm text-gray-600">{{ user.name }}</span>
@@ -29,7 +29,7 @@
               @click="handleLogout"
               class="px-3 py-1.5 text-gray-600 hover:text-gray-900 font-medium"
             >
-              Logout
+              Tanca la sessió
             </button>
           </template>
           <template v-else>
@@ -37,7 +37,7 @@
               to="/login"
               class="px-3 py-1.5 text-indigo-600 hover:text-indigo-800 font-semibold"
             >
-              Login
+              Inicia sessió
             </NuxtLink>
           </template>
         </nav>

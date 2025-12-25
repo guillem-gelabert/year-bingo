@@ -4,12 +4,12 @@
       <!-- Page Title -->
       <div class="mb-8">
         <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-          <NuxtLink to="/admin" class="hover:text-indigo-600">Admin</NuxtLink>
+          <NuxtLink to="/admin" class="hover:text-indigo-600">Administració</NuxtLink>
           <span>/</span>
-          <span>View Bingo Card</span>
+          <span>Veure bingo</span>
         </div>
         <h1 class="text-4xl font-bold text-indigo-900 mb-2">
-          {{ bingoCard?.userName || "Loading..." }}
+          {{ bingoCard?.userName || "Carregant..." }}
         </h1>
         <p v-if="bingoCard?.userEmail" class="text-gray-600">{{ bingoCard.userEmail }}</p>
       </div>
@@ -17,7 +17,7 @@
       <!-- Loading state -->
       <div v-if="loading" class="text-center py-12">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-        <p class="mt-4 text-gray-600">Loading bingo card...</p>
+        <p class="mt-4 text-gray-600">Carregant bingo...</p>
       </div>
 
       <!-- Bingo Grid -->
@@ -29,10 +29,10 @@
             class="border-2 border-gray-300 rounded-lg p-4 min-h-[120px]"
           >
             <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Prediction {{ prediction.position }}
+              Predicció {{ prediction.position }}
             </label>
             <p class="text-gray-800 whitespace-pre-wrap">
-              {{ prediction.description || "(empty)" }}
+              {{ prediction.description || "(buit)" }}
             </p>
           </div>
         </div>
@@ -42,26 +42,26 @@
             to="/admin"
             class="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition"
           >
-            ← Back to Admin Panel
+            ← Torna al panell d'administració
           </NuxtLink>
         </div>
       </div>
 
       <!-- Error state -->
       <div v-else class="bg-white rounded-lg shadow-xl p-8 text-center">
-        <p class="text-red-600 mb-4">{{ error || "Failed to load bingo card." }}</p>
+        <p class="text-red-600 mb-4">{{ error || "No s'ha pogut carregar el bingo." }}</p>
         <div class="flex gap-4 justify-center">
           <button
             @click="fetchBingoCard"
             class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
           >
-            Retry
+            Reintenta
           </button>
           <NuxtLink
             to="/admin"
             class="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition"
           >
-            Back to Admin
+            Torna a administració
           </NuxtLink>
         </div>
       </div>
@@ -106,7 +106,7 @@ const fetchBingoCard = async () => {
     bingoCard.value = data;
   } catch (err: any) {
     console.error("Failed to fetch bingo card:", err);
-    error.value = err.data?.message || err.message || "Failed to load bingo card";
+    error.value = err.data?.message || err.message || "No s'ha pogut carregar el bingo";
     bingoCard.value = null;
   } finally {
     loading.value = false;

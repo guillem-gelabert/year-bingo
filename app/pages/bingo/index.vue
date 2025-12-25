@@ -3,19 +3,19 @@
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-indigo-900 mb-2">Everyone's Year Bingo</h1>
-        <p class="text-gray-600">See what everyone predicted for the year!</p>
+        <h1 class="text-4xl font-bold text-indigo-900 mb-2">El bingo de l'any de tothom</h1>
+        <p class="text-gray-600">Mira què ha predit tothom per a l'any!</p>
       </div>
 
       <!-- Not available message -->
       <div v-if="!isPublicViewEnabled" class="bg-white rounded-lg shadow-xl p-8 text-center">
         <div class="text-6xl mb-4">🔒</div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Not Yet Available</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Encara no disponible</h2>
         <p class="text-gray-600 mb-6">
-          Bingo cards will be publicly visible after December 31st, 23:59:59.
+          Els bingos seran visibles públicament després del 31 de desembre, 23:59:59.
         </p>
         <div v-if="timeRemaining" class="mb-6">
-          <p class="text-sm text-gray-600 mb-2">Time remaining:</p>
+          <p class="text-sm text-gray-600 mb-2">Temps restant:</p>
           <p class="text-3xl font-bold text-indigo-600">
             {{ timeRemaining.days }}d {{ timeRemaining.hours }}h {{ timeRemaining.minutes }}m
           </p>
@@ -24,14 +24,14 @@
           to="/" 
           class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
         >
-          Go Home
+          Torna a l'inici
         </NuxtLink>
       </div>
 
       <!-- Loading state -->
       <div v-else-if="loading" class="text-center py-12">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-        <p class="mt-4 text-gray-600">Loading bingo cards...</p>
+        <p class="mt-4 text-gray-600">Carregant bingos...</p>
       </div>
 
       <!-- Bingo cards grid -->
@@ -42,7 +42,7 @@
           class="bg-white rounded-lg shadow-xl p-6"
         >
           <h2 class="text-2xl font-bold text-indigo-900 mb-4 text-center">
-            {{ card.user.name }}'s Predictions
+            Prediccions de {{ card.user.name }}
           </h2>
           
           <div class="grid grid-cols-3 gap-3">
@@ -52,7 +52,7 @@
               class="border-2 border-gray-200 rounded-lg p-3 min-h-[120px] flex items-center justify-center text-center"
             >
               <p class="text-sm text-gray-700">
-                {{ prediction.description || '(Empty)' }}
+                {{ prediction.description || '(Buit)' }}
               </p>
             </div>
           </div>
@@ -61,13 +61,13 @@
 
       <!-- Empty state -->
       <div v-else class="bg-white rounded-lg shadow-xl p-8 text-center">
-        <p class="text-gray-600">No bingo cards yet. Be the first to create one!</p>
+        <p class="text-gray-600">Encara no hi ha bingos. Sigues el primer a crear-ne un!</p>
         <NuxtLink 
           v-if="user"
           to="/bingo/edit" 
           class="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
         >
-          Create Your Bingo Card
+          Crea el teu bingo
         </NuxtLink>
       </div>
     </div>

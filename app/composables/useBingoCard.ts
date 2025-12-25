@@ -52,7 +52,7 @@ export const useBingoCard = () => {
 
       return updated
     } catch (error: any) {
-      saveError.value[predictionId] = error.message || 'Failed to save'
+      saveError.value[predictionId] = error.message || "No s'ha pogut desar"
       throw error
     } finally {
       saving.value[predictionId] = false
