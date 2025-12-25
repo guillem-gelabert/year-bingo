@@ -1,42 +1,50 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:16-alpine
+  mariadb:
+    image: mariadb:11
     container_name: year-bingo-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: yearbingo
-      POSTGRES_PASSWORD: yearbingo_dev_password
-      POSTGRES_DB: yearbingo
+      MARIADB_USER: yearbingo
+      MARIADB_PASSWORD: yearbingo_dev_password
+      MARIADB_DATABASE: yearbingo
+      MARIADB_ROOT_PASSWORD: root_password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U yearbingo -d yearbingo"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   web:
-    build:
-      context: .
+    image: node:20-alpine
     container_name: year-bingo-web
     restart: unless-stopped
+    working_dir: /app
     depends_on:
-      postgres:
+      mariadb:
         condition: service_healthy
+    volumes:
+      - .:/app
+      - web_node_modules:/app/node_modules
+      - web_nuxt:/app/.nuxt
     environment:
       # Use the docker-compose service name as host
-      DATABASE_URL: postgresql://yearbingo:yearbingo_dev_password@postgres:5432/yearbingo?schema=public
+      DATABASE_URL: mysql://yearbingo:yearbingo_dev_password@mariadb:3306/yearbingo
       SESSION_SECRET: ${SESSION_SECRET:-change-this-to-a-secure-random-string-in-production}
       APP_URL: ${APP_URL:-http://localhost:3000}
       TZ: ${TZ:-UTC}
-      NITRO_HOST: 0.0.0.0
-      NITRO_PORT: 3000
+      # Nuxt dev server binding
+      HOST: 0.0.0.0
+      PORT: 3000
     ports:
       - "3000:3000"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
 
 volumes:
-  postgres_data:
+  mariadb_data:
+  web_node_modules:
+  web_nuxt:

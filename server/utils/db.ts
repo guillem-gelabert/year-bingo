@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
+import { drizzle } from 'drizzle-orm/mysql2'
+import mysql from 'mysql2/promise'
 
 import * as schema from '../db/schema'
 
@@ -8,20 +8,20 @@ function poolSingleton() {
   if (!connectionString) {
     throw new Error('DATABASE_URL is not set')
   }
-  return new Pool({ connectionString })
+  return mysql.createPool(connectionString)
 }
 
 function dbSingleton() {
-  return drizzle(poolSingleton(), { schema })
+  return drizzle(poolSingleton(), { schema, mode: 'default' })
 }
 
 declare const globalThis: {
   __dbGlobal?: ReturnType<typeof dbSingleton>
-  __poolGlobal?: Pool
+  __poolGlobal?: ReturnType<typeof poolSingleton>
 } & typeof global
 
 const pool = globalThis.__poolGlobal ?? poolSingleton()
-const db = globalThis.__dbGlobal ?? drizzle(pool, { schema })
+const db = globalThis.__dbGlobal ?? drizzle(pool, { schema, mode: 'default' })
 
 export default db
 export { pool }

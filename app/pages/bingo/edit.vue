@@ -1,18 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 py-8">
+  <div class="p-4 py-8">
     <div class="max-w-4xl mx-auto">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-8">
-        <div>
-          <h1 class="text-4xl font-bold text-indigo-900 mb-2">My Year Bingo</h1>
-          <p v-if="user" class="text-gray-600">Welcome, {{ user.name }}!</p>
-        </div>
-        <button 
-          @click="handleLogout"
-          class="px-4 py-2 text-gray-600 hover:text-gray-900 font-semibold"
-        >
-          Logout
-        </button>
+      <!-- Page Title -->
+      <div class="mb-8">
+        <h1 class="text-4xl font-bold text-indigo-900 mb-2">My Year Bingo</h1>
+        <p v-if="user" class="text-gray-600">Fill in your 9 predictions for the year!</p>
       </div>
 
       <!-- Deadline info -->
@@ -93,15 +85,9 @@
         </div>
 
         <div class="mt-6 pt-6 border-t border-gray-200 text-center">
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600">
             Your predictions are automatically saved as you type.
           </p>
-          <NuxtLink 
-            to="/" 
-            class="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-700 transition"
-          >
-            Back to Home
-          </NuxtLink>
         </div>
       </div>
 
@@ -127,7 +113,7 @@ definePageMeta({
   middleware: ['auth']
 })
 
-const { user, logout, fetchUser } = useAuth()
+const { user, fetchUser } = useAuth()
 const { bingoCard, loading, saving, saveError, fetchMyBingoCard, updatePrediction } = useBingoCard()
 const { deadline, canEdit, timeRemaining, fetchDeadline } = useDeadline()
 
@@ -159,10 +145,6 @@ const handleInput = (predictionId: string) => {
       }
     }
   }, 500)
-}
-
-const handleLogout = async () => {
-  await logout()
 }
 
 const loadData = async () => {

@@ -5,13 +5,16 @@ export default defineEventHandler(async (event) => {
   // Public routes that don't require authentication
   const publicRoutes = [
     '/api/auth/login',
+    '/api/auth/generate-login-link', // Uses API key authentication instead
     '/api/deadline',
   ]
 
   // Check if it's an API route
   if (path.startsWith('/api/')) {
     // Allow public routes
-    if (publicRoutes.some(route => path.startsWith(route))) {
+    const isPublicRoute = publicRoutes.some(route => path.startsWith(route))
+
+    if (isPublicRoute) {
       return
     }
 

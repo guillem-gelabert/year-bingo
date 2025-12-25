@@ -13,7 +13,19 @@ export default defineEventHandler(async (event) => {
   }
 
   // Find user by token
-  const user = (await db.select().from(users).where(eq(users.loginToken, body.token)).limit(1))[0]
+  const user = (
+    await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        isAdmin: users.isAdmin,
+        loginTokenExpiresAt: users.loginTokenExpiresAt,
+      })
+      .from(users)
+      .where(eq(users.loginToken, body.token))
+      .limit(1)
+  )[0]
 
   if (!user) {
     throw createError({
@@ -33,15 +45,9 @@ export default defineEventHandler(async (event) => {
   // Set user session
   await setUserId(event, user.id)
 
-  // Clear the login token (single use)
-  await db
-    .update(users)
-    .set({
-      loginToken: null,
-      loginTokenExpiresAt: null,
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, user.id))
+  // NOTE: Login links are intentionally multi-use.
+  // We keep loginToken/loginTokenExpiresAt intact so users can reuse the same link.
+  // Expiration is still enforced above.
 
   return {
     success: true,
@@ -49,6 +55,7 @@ export default defineEventHandler(async (event) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
     },
   }
 })

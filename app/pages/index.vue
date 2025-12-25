@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">
+  <div class="flex items-center justify-center p-4 py-12">
     <div class="max-w-2xl w-full text-center">
       <h1 class="text-6xl font-bold text-indigo-900 mb-6">
         🎯 Year Bingo

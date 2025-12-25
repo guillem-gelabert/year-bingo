@@ -77,13 +77,19 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Update the prediction
+  // Update the prediction (MySQL doesn't support .returning())
+  await db
+    .update(predictions)
+    .set({ description: body.description, updatedAt: new Date() })
+    .where(eq(predictions.id, predictionId))
+
+  // Fetch the updated prediction
   const updatedPrediction = (
     await db
-      .update(predictions)
-      .set({ description: body.description, updatedAt: new Date() })
+      .select()
+      .from(predictions)
       .where(eq(predictions.id, predictionId))
-      .returning()
+      .limit(1)
   )[0]
 
   return updatedPrediction

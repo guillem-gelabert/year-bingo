@@ -1,16 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 py-8">
+  <div class="p-4 py-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-indigo-900 mb-2">Everyone's Year Bingo</h1>
         <p class="text-gray-600">See what everyone predicted for the year!</p>
-        <NuxtLink 
-          to="/" 
-          class="inline-block mt-4 text-indigo-600 hover:underline font-semibold"
-        >
-          ← Back to Home
-        </NuxtLink>
       </div>
 
       <!-- Not available message -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">
+  <div class="flex items-center justify-center p-4 py-12">
     <div class="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
       <h1 class="text-3xl font-bold text-indigo-900 mb-6 text-center">
         🎯 Year Bingo Login
@@ -44,7 +44,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const router = useRouter()
-const { login } = useAuth()
+const { login, fetchUser, user } = useAuth()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -54,6 +54,11 @@ onMounted(async () => {
   const token = route.query.token as string
   
   if (!token) {
+    // If already authenticated, go straight to the bingo card.
+    await fetchUser()
+    if (user.value) {
+      router.replace('/bingo/edit')
+    }
     return
   }
 
@@ -61,11 +66,9 @@ onMounted(async () => {
     loading.value = true
     await login(token)
     success.value = true
-    
-    // Redirect to bingo edit page after 1 second
-    setTimeout(() => {
-      router.push('/bingo/edit')
-    }, 1000)
+
+    // Drop token from URL and go to bingo page
+    router.replace('/bingo/edit')
   } catch (err: any) {
     error.value = err.data?.message || err.message || 'Invalid or expired login token'
   } finally {

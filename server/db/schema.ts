@@ -1,18 +1,19 @@
-import { integer, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import { boolean, char, int, mysqlTable, text, timestamp, uniqueIndex } from 'drizzle-orm/mysql-core'
 
 // IMPORTANT:
 // These table + column names intentionally match Prisma's defaults
 // (e.g. "User", "BingoCard", "Prediction" and camelCase columns),
 // so existing databases created by Prisma keep working.
 
-export const users = pgTable(
+export const users = mysqlTable(
   'User',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: char('id', { length: 36 }).primaryKey(),
     name: text('name').notNull(),
     email: text('email'),
     loginToken: text('loginToken'),
     loginTokenExpiresAt: timestamp('loginTokenExpiresAt', { mode: 'date' }),
+    isAdmin: boolean('isAdmin').notNull().default(false),
     createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),
     updatedAt: timestamp('updatedAt', { mode: 'date' }).notNull().defaultNow(),
   },
@@ -22,11 +23,11 @@ export const users = pgTable(
   }),
 )
 
-export const bingoCards = pgTable(
+export const bingoCards = mysqlTable(
   'BingoCard',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('userId')
+    id: char('id', { length: 36 }).primaryKey(),
+    userId: char('userId', { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),
@@ -37,15 +38,15 @@ export const bingoCards = pgTable(
   }),
 )
 
-export const predictions = pgTable(
+export const predictions = mysqlTable(
   'Prediction',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    bingoCardId: uuid('bingoCardId')
+    id: char('id', { length: 36 }).primaryKey(),
+    bingoCardId: char('bingoCardId', { length: 36 })
       .notNull()
       .references(() => bingoCards.id, { onDelete: 'cascade' }),
     description: text('description').notNull(),
-    position: integer('position').notNull(), // 1-9 for 3x3 grid
+    position: int('position').notNull(), // 1-9 for 3x3 grid
     createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),
     updatedAt: timestamp('updatedAt', { mode: 'date' }).notNull().defaultNow(),
   },
