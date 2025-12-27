@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
-import db, { users } from "../../utils/db";
+import db, { bingoCards, predictions, users } from "../../utils/db";
 import { requireAdmin } from "../../utils/auth";
 import { generateLoginToken, getTokenExpiration } from "../../utils/auth";
 
@@ -15,8 +15,12 @@ export default defineEventHandler(async (event) => {
       isAdmin: users.isAdmin,
       loginToken: users.loginToken,
       loginTokenExpiresAt: users.loginTokenExpiresAt,
+      predictionsCount: sql<number>`count(${predictions.id})`,
     })
-    .from(users);
+    .from(users)
+    .leftJoin(bingoCards, eq(bingoCards.userId, users.id))
+    .leftJoin(predictions, eq(predictions.bingoCardId, bingoCards.id))
+    .groupBy(users.id);
 
   const appUrl = process.env.APP_URL || "http://localhost:3000";
 
@@ -25,6 +29,7 @@ export default defineEventHandler(async (event) => {
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin,
+    predictionsCount: Number(user.predictionsCount ?? 0),
     loginUrl: user.loginToken
       ? `${appUrl}/login?token=${user.loginToken}`
       : null,

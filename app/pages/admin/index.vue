@@ -83,6 +83,7 @@
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Nom</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Correu</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Enllaç d'inici de sessió</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700">Prediccions</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Bingo</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Rol</th>
               </tr>
@@ -110,6 +111,9 @@
                     </button>
                   </div>
                   <span v-else class="text-gray-400 text-sm">Sense token</span>
+                </td>
+                <td class="py-3 px-4">
+                  {{ u.predictionsCount }}/9
                 </td>
                 <td class="py-3 px-4">
                   <NuxtLink
@@ -152,6 +156,7 @@ const users = ref<
     isAdmin: boolean;
     loginUrl: string | null;
     bingoUrl: string;
+    predictionsCount: number;
   }>
 >([]);
 const loadingUsers = ref(false);
