@@ -6,10 +6,15 @@ WORKDIR /app
 
 # Install deps first (better layer caching).
 COPY package.json package-lock.json ./
-RUN npm ci
+# We run scripts (nuxt prepare + debug probes) after the full source is copied.
+# Otherwise `preinstall/postinstall` can fail because files like `scripts/*` or `nuxt.config.ts`
+# aren't in the image yet.
+RUN npm ci --ignore-scripts
 
 # Copy source and build.
 COPY . .
+# We ignored lifecycle scripts during `npm ci`, so run the equivalent of postinstall explicitly.
+RUN npm run postinstall
 RUN npm run build
 
 # Runtime image
