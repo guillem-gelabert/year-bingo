@@ -6,10 +6,12 @@ import { getUserId } from '../../utils/auth'
 export default defineEventHandler(async (event) => {
   const userId = await getUserId(event)
 
-  // Count filled predictions (non-empty descriptions). If logged in, exclude your own.
+  // Count filled predictions (non-empty descriptions with length > 0 after trim).
+  // If logged in, exclude your own.
+  const descriptionNotEmpty = sql`LENGTH(TRIM(${predictions.description})) > 0`
   const whereClause = userId
-    ? and(ne(predictions.description, ''), ne(bingoCards.userId, userId))
-    : ne(predictions.description, '')
+    ? and(descriptionNotEmpty, ne(bingoCards.userId, userId))
+    : descriptionNotEmpty
 
   const result = await db
     .select({ count: sql<number>`count(*)` })

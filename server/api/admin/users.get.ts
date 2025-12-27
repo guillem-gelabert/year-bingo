@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, ne, sql } from "drizzle-orm";
 
 import db, { bingoCards, predictions, users } from "../../utils/db";
 import { requireAdmin } from "../../utils/auth";
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       isAdmin: users.isAdmin,
       loginToken: users.loginToken,
       loginTokenExpiresAt: users.loginTokenExpiresAt,
-      predictionsCount: sql<number>`count(${predictions.id})`,
+      predictionsCount: sql<number>`count(case when LENGTH(TRIM(${predictions.description})) > 0 then 1 end)`,
     })
     .from(users)
     .leftJoin(bingoCards, eq(bingoCards.userId, users.id))
@@ -36,4 +36,3 @@ export default defineEventHandler(async (event) => {
     bingoUrl: `${appUrl}/admin/bingo/${user.id}`,
   }));
 });
-
