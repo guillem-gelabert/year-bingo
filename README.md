@@ -6,7 +6,7 @@ A web application where users create bingo cards with 9 predictions for the upco
 
 - **Frontend/Backend**: Nuxt 4
 - **Database ORM**: Drizzle ORM
-- **Database**: PostgreSQL
+- **Database**: MariaDB/MySQL
 - **Infrastructure**: Docker Compose
 - **Styling**: Tailwind CSS
 - **Authentication**: Login links (no passwords)
@@ -22,7 +22,7 @@ A web application where users create bingo cards with 9 predictions for the upco
 ## Prerequisites
 
 - Node.js 18+ and npm
-- Docker and Docker Compose (for PostgreSQL)
+- Docker and Docker Compose (for MariaDB/MySQL)
 
 ## Getting Started
 
@@ -43,14 +43,15 @@ cp .env.example .env
 ```
 
 Update `.env` with your settings:
-- `DATABASE_URL` - PostgreSQL connection string
+- `DATABASE_URL` - MariaDB/MySQL connection string
 - `SESSION_SECRET` - Random string for session encryption (change in production!)
+- `API_KEY` - Random string for API authentication (used by `/api/auth/generate-login-link`)
 - `APP_URL` - Your application URL
 - `TZ` - Timezone for deadline calculations (default: UTC)
 
-### 3. Start PostgreSQL
+### 3. Start MariaDB
 
-Start the PostgreSQL database with Docker Compose:
+Start the MariaDB database with Docker Compose:
 
 ```bash
 docker compose up -d
@@ -233,15 +234,58 @@ npx drizzle-kit drop
 
 ## Deployment
 
-### Environment Variables
+### Railway Deployment (Recommended)
+
+This project is configured for deployment on [Railway](https://railway.app) using the Railway GitHub App.
+
+#### Setup Steps
+
+1. **Connect Repository to Railway**
+   - Go to [Railway](https://railway.app) and sign in with GitHub
+   - Click "New Project" → "Deploy from GitHub Repo"
+   - Select the `year-bingo` repository
+   - Railway will automatically detect the project and start building
+
+2. **Add Database Service**
+   - In your Railway project, click "+ New" → "Database" → "MySQL"
+   - Railway will provision a MySQL/MariaDB database
+   - The `DATABASE_URL` will be automatically available to your web service
+
+3. **Configure Environment Variables**
+   - In your Railway web service settings, add these environment variables:
+     - `NODE_ENV=production`
+     - `SESSION_SECRET` - Generate with: `openssl rand -base64 32`
+     - `API_KEY` - Generate with: `openssl rand -base64 32` (used for admin user creation)
+     - `APP_URL` - Your Railway public URL (e.g., `https://year-bingo-production.up.railway.app`)
+     - `TZ` - Timezone (e.g., `Europe/Madrid` or `UTC`)
+   - `DATABASE_URL` is automatically set by Railway from the database service
+
+4. **Deploy**
+   - Railway will automatically build and deploy on every push to `main`
+   - The `scripts/railway-start.js` script will:
+     - Run database migrations automatically
+     - Start the Nuxt server on Railway's `PORT`
+
+#### Railway Configuration
+
+The project includes:
+- `railway.json` - Railway build and deploy configuration
+- `scripts/railway-start.js` - Entrypoint script that runs migrations and starts the server
+
+### Manual Deployment
+
+#### Environment Variables
 
 Ensure these are set in production:
-- `DATABASE_URL` - Production PostgreSQL connection
+- `DATABASE_URL` - Production MariaDB/MySQL connection
 - `SESSION_SECRET` - Strong random string (use `openssl rand -base64 32`)
+- `API_KEY` - Strong random string for API authentication (use `openssl rand -base64 32`)
 - `APP_URL` - Production URL (e.g., https://yearbingo.com)
-- `TZ` - Timezone for deadlines (e.g., "America/New_York" or "UTC")
+- `TZ` - Timezone for deadlines (e.g., "Europe/Madrid" or "UTC")
+- `PORT` - Port to listen on (Railway sets this automatically)
+- `HOST` - Host to bind to (default: `0.0.0.0`)
 
-### Build and Deploy
+#### Build and Deploy
 
 ```bash
 # Install dependencies
@@ -261,10 +305,10 @@ node .output/server/index.mjs
 
 ### Database Connection Issues
 
-If you can't connect to PostgreSQL:
+If you can't connect to MariaDB/MySQL:
 
 1. Check Docker is running: `docker compose ps`
-2. Check PostgreSQL logs: `docker compose logs postgres`
+2. Check MariaDB logs: `docker compose logs mariadb`
 3. Verify DATABASE_URL in `.env`
 4. Try restarting containers: `docker compose restart`
 
