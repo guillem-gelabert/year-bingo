@@ -1,4 +1,4 @@
-import { boolean, char, int, mysqlTable, text, timestamp, uniqueIndex } from 'drizzle-orm/mysql-core'
+import { boolean, char, int, mysqlTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/mysql-core'
 
 // IMPORTANT:
 // These table + column names intentionally match Prisma's defaults
@@ -10,8 +10,10 @@ export const users = mysqlTable(
   {
     id: char('id', { length: 36 }).primaryKey(),
     name: text('name').notNull(),
-    email: text('email'),
-    loginToken: text('loginToken'),
+    // NOTE: In MySQL/MariaDB, TEXT columns can't be indexed without a prefix length.
+    // These are uniquely indexed, so use VARCHAR.
+    email: varchar('email', { length: 191 }),
+    loginToken: varchar('loginToken', { length: 191 }),
     loginTokenExpiresAt: timestamp('loginTokenExpiresAt', { mode: 'date' }),
     isAdmin: boolean('isAdmin').notNull().default(false),
     createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),

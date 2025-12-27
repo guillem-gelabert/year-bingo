@@ -1,33 +1,42 @@
-CREATE TABLE "BingoCard" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"userId" uuid NOT NULL,
-	"createdAt" timestamp DEFAULT now() NOT NULL,
-	"updatedAt" timestamp DEFAULT now() NOT NULL
-);
+CREATE TABLE `BingoCard` (
+	`id` char(36) NOT NULL,
+	`userId` char(36) NOT NULL,
+	`createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 --> statement-breakpoint
-CREATE TABLE "Prediction" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"bingoCardId" uuid NOT NULL,
-	"description" text NOT NULL,
-	"position" integer NOT NULL,
-	"createdAt" timestamp DEFAULT now() NOT NULL,
-	"updatedAt" timestamp DEFAULT now() NOT NULL
-);
+CREATE TABLE `Prediction` (
+	`id` char(36) NOT NULL,
+	`bingoCardId` char(36) NOT NULL,
+	`description` text NOT NULL,
+	`position` int NOT NULL,
+	`createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 --> statement-breakpoint
-CREATE TABLE "User" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text NOT NULL,
-	"email" text,
-	"loginToken" text,
-	"loginTokenExpiresAt" timestamp,
-	"isAdmin" boolean DEFAULT false NOT NULL,
-	"createdAt" timestamp DEFAULT now() NOT NULL,
-	"updatedAt" timestamp DEFAULT now() NOT NULL
-);
+CREATE TABLE `User` (
+	`id` char(36) NOT NULL,
+	`name` text NOT NULL,
+	`email` varchar(191),
+	`loginToken` varchar(191),
+	`loginTokenExpiresAt` timestamp NULL,
+	`isAdmin` boolean NOT NULL DEFAULT false,
+	`createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 --> statement-breakpoint
-ALTER TABLE "BingoCard" ADD CONSTRAINT "BingoCard_userId_User_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "Prediction" ADD CONSTRAINT "Prediction_bingoCardId_BingoCard_id_fk" FOREIGN KEY ("bingoCardId") REFERENCES "public"."BingoCard"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "BingoCard_userId_key" ON "BingoCard" USING btree ("userId");--> statement-breakpoint
-CREATE UNIQUE INDEX "Prediction_bingoCardId_position_key" ON "Prediction" USING btree ("bingoCardId","position");--> statement-breakpoint
-CREATE UNIQUE INDEX "User_email_key" ON "User" USING btree ("email");--> statement-breakpoint
-CREATE UNIQUE INDEX "User_loginToken_key" ON "User" USING btree ("loginToken");
+ALTER TABLE `BingoCard`
+	ADD CONSTRAINT `BingoCard_userId_User_id_fk`
+	FOREIGN KEY (`userId`) REFERENCES `User`(`id`)
+	ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE `Prediction`
+	ADD CONSTRAINT `Prediction_bingoCardId_BingoCard_id_fk`
+	FOREIGN KEY (`bingoCardId`) REFERENCES `BingoCard`(`id`)
+	ON DELETE CASCADE;--> statement-breakpoint
+CREATE UNIQUE INDEX `BingoCard_userId_key` ON `BingoCard` (`userId`);--> statement-breakpoint
+CREATE UNIQUE INDEX `Prediction_bingoCardId_position_key` ON `Prediction` (`bingoCardId`,`position`);--> statement-breakpoint
+CREATE UNIQUE INDEX `User_email_key` ON `User` (`email`);--> statement-breakpoint
+CREATE UNIQUE INDEX `User_loginToken_key` ON `User` (`loginToken`);

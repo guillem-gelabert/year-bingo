@@ -2,7 +2,7 @@
   "id": "2a26f8e5-8677-4b79-8f2e-1f9ef000be44",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "mysql",
   "tables": {
     "public.BingoCard": {
       "name": "BingoCard",
