@@ -31,8 +31,8 @@
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               Predicció {{ prediction.position }}
             </label>
-            <p class="text-gray-800 whitespace-pre-wrap">
-              {{ prediction.description || "(buit)" }}
+            <p v-if="prediction.description" class="text-gray-800 whitespace-pre-wrap">
+              {{ prediction.description }}
             </p>
           </div>
         </div>

@@ -81,7 +81,6 @@
             <thead>
               <tr class="border-b-2 border-gray-200">
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Nom</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Correu</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Enllaç d'inici de sessió</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Prediccions</th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Bingo</th>
@@ -95,7 +94,6 @@
                 class="border-b border-gray-100 hover:bg-gray-50"
               >
                 <td class="py-3 px-4">{{ u.name }}</td>
-                <td class="py-3 px-4">{{ u.email || "-" }}</td>
                 <td class="py-3 px-4">
                   <div v-if="u.loginUrl" class="flex items-center gap-2">
                     <input
