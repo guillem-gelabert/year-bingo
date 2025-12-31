@@ -7,29 +7,8 @@
         <p class="text-gray-600">Mira què ha predit tothom per a l'any!</p>
       </div>
 
-      <!-- Not available message -->
-      <div v-if="!isPublicViewEnabled" class="bg-white rounded-lg shadow-xl p-8 text-center">
-        <div class="text-6xl mb-4">🔒</div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Encara no disponible</h2>
-        <p class="text-gray-600 mb-6">
-          Els bingos seran visibles públicament després del 31 de desembre, 23:59:59.
-        </p>
-        <div v-if="timeRemaining" class="mb-6">
-          <p class="text-sm text-gray-600 mb-2">Temps restant:</p>
-          <p class="text-3xl font-bold text-indigo-600">
-            {{ timeRemaining.days }}d {{ timeRemaining.hours }}h {{ timeRemaining.minutes }}m
-          </p>
-        </div>
-        <NuxtLink 
-          to="/" 
-          class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
-        >
-          Torna a l'inici
-        </NuxtLink>
-      </div>
-
       <!-- Loading state -->
-      <div v-else-if="loading" class="text-center py-12">
+      <div v-if="loading" class="text-center py-12">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
         <p class="mt-4 text-gray-600">Carregant bingos...</p>
       </div>
@@ -61,13 +40,22 @@
 
       <!-- Empty state -->
       <div v-else class="bg-white rounded-lg shadow-xl p-8 text-center">
-        <p class="text-gray-600">Encara no hi ha bingos. Sigues el primer a crear-ne un!</p>
+        <p class="text-gray-600">Encara no hi ha bingos.</p>
         <NuxtLink 
-          v-if="user"
-          to="/bingo/edit" 
+          to="/" 
           class="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
         >
-          Crea el teu bingo
+          Torna a l'inici
+        </NuxtLink>
+      </div>
+
+      <!-- Back link -->
+      <div class="mt-8 text-center">
+        <NuxtLink 
+          to="/" 
+          class="text-indigo-600 font-semibold hover:underline"
+        >
+          ← Torna a l'inici
         </NuxtLink>
       </div>
     </div>
@@ -77,9 +65,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const { user, fetchUser } = useAuth()
-const { isPublicViewEnabled, timeRemaining, fetchDeadline } = useDeadline()
-
 const bingoCards = ref<any[]>([])
 const loading = ref(false)
 
@@ -88,8 +73,6 @@ const sortPredictions = (predictions: any[]) => {
 }
 
 const fetchBingoCards = async () => {
-  if (!isPublicViewEnabled.value) return
-  
   try {
     loading.value = true
     bingoCards.value = await $fetch('/api/bingo/all')
@@ -101,8 +84,6 @@ const fetchBingoCards = async () => {
 }
 
 onMounted(async () => {
-  await fetchUser()
-  await fetchDeadline()
   await fetchBingoCards()
 })
 </script>
