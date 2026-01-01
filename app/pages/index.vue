@@ -36,15 +36,6 @@
         <p class="text-gray-600">Encara no hi ha prediccions.</p>
       </div>
 
-      <!-- Navigation links -->
-      <div class="mt-8 text-center">
-        <NuxtLink 
-          to="/bingo" 
-          class="text-indigo-600 font-semibold hover:underline"
-        >
-          Veure tots els bingos per persona →
-        </NuxtLink>
-      </div>
     </div>
   </div>
 </template>
@@ -56,12 +47,6 @@ interface Prediction {
   id: string
   description: string
   position: number
-}
-
-interface BingoCard {
-  id: string
-  user: { id: string; name: string }
-  predictions: Prediction[]
 }
 
 const allPredictions = ref<Prediction[]>([])
@@ -84,19 +69,8 @@ const randomizedPredictions = computed(() => {
 const fetchAllPredictions = async () => {
   try {
     loading.value = true
-    const bingoCards = await $fetch<BingoCard[]>('/api/bingo/all')
-    
-    // Flatten all predictions from all bingo cards
-    const predictions: Prediction[] = []
-    for (const card of bingoCards) {
-      for (const prediction of card.predictions) {
-        if (prediction.description && prediction.description.trim()) {
-          predictions.push(prediction)
-        }
-      }
-    }
-    
-    allPredictions.value = predictions
+    // API now returns anonymous predictions directly (no author info)
+    allPredictions.value = await $fetch<Prediction[]>('/api/bingo/all')
   } catch (error) {
     console.error('Failed to fetch predictions:', error)
     allPredictions.value = []

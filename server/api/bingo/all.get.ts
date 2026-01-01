@@ -1,71 +1,27 @@
-import { asc, eq } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 
-import db, { bingoCards, predictions, users } from '../../utils/db'
+import db, { predictions } from '../../utils/db'
 
-type PublicBingoCard = {
+type AnonymousPrediction = {
   id: string
-  userId: string
-  createdAt: Date
-  updatedAt: Date
-  user: { id: string; name: string }
-  predictions: Array<{
-    id: string
-    bingoCardId: string
-    description: string
-    position: number
-    createdAt: Date
-    updatedAt: Date
-  }>
+  description: string
+  position: number
 }
 
-export default defineEventHandler(async (event) => {
-  // Get all bingo cards with predictions and user info
+export default defineEventHandler(async () => {
+  // Get all non-empty predictions without any author info for privacy
   const rows = await db
     .select({
-      cardId: bingoCards.id,
-      cardUserId: bingoCards.userId,
-      cardCreatedAt: bingoCards.createdAt,
-      cardUpdatedAt: bingoCards.updatedAt,
-      userId: users.id,
-      userName: users.name,
-      predictionId: predictions.id,
-      predictionDescription: predictions.description,
-      predictionPosition: predictions.position,
-      predictionCreatedAt: predictions.createdAt,
-      predictionUpdatedAt: predictions.updatedAt,
+      id: predictions.id,
+      description: predictions.description,
+      position: predictions.position,
     })
-    .from(bingoCards)
-    .innerJoin(users, eq(bingoCards.userId, users.id))
-    .leftJoin(predictions, eq(predictions.bingoCardId, bingoCards.id))
-    .orderBy(asc(users.name), asc(predictions.position))
+    .from(predictions)
+    .where(sql`LENGTH(TRIM(${predictions.description})) > 0`)
 
-  const byCardId = new Map<string, PublicBingoCard>()
-
-  for (const row of rows) {
-    const existing =
-      byCardId.get(row.cardId) ??
-      ({
-        id: row.cardId,
-        userId: row.cardUserId,
-        createdAt: row.cardCreatedAt,
-        updatedAt: row.cardUpdatedAt,
-        user: { id: row.userId, name: row.userName },
-        predictions: [],
-      } satisfies PublicBingoCard)
-
-    if (row.predictionId) {
-      existing.predictions.push({
-        id: row.predictionId,
-        bingoCardId: row.cardId,
-        description: row.predictionDescription ?? '',
-        position: row.predictionPosition ?? 0,
-        createdAt: row.predictionCreatedAt ?? existing.createdAt,
-        updatedAt: row.predictionUpdatedAt ?? existing.updatedAt,
-      })
-    }
-
-    byCardId.set(row.cardId, existing)
-  }
-
-  return Array.from(byCardId.values())
+  return rows.map((row): AnonymousPrediction => ({
+    id: row.id,
+    description: row.description ?? '',
+    position: row.position ?? 0,
+  }))
 })
